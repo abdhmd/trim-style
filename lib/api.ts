@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Barber, Service, Booking } from '@prisma/client'; // استيراد أنواع من Prisma
 
 // -------------------- BARBERS CRUD --------------------
 
 // Get all barbers
-export async function getBarbers() {
+export async function getBarbers(): Promise<NextResponse> {
   try {
-    const barbers = await prisma.barber.findMany();
+    const barbers: Barber[] = await prisma.barber.findMany();
     return NextResponse.json(barbers);
   } catch (error) {
     console.error('Error fetching barbers:', error);
@@ -15,15 +16,15 @@ export async function getBarbers() {
 }
 
 // Create a new barber
-export async function createBarber(req: NextRequest) {
+export async function createBarber(req: NextRequest): Promise<NextResponse> {
   try {
-    const { name } = await req.json();
+    const { name }: { name: string } = await req.json(); // نوع البيانات الذي ننتظره في الطلب
 
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    const newBarber = await prisma.barber.create({
+    const newBarber: Barber = await prisma.barber.create({
       data: { name },
     });
 
@@ -35,15 +36,15 @@ export async function createBarber(req: NextRequest) {
 }
 
 // Update a barber's details
-export async function updateBarber(req: NextRequest) {
+export async function updateBarber(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id, name } = await req.json();
+    const { id, name }: { id: number; name: string } = await req.json();
 
     if (!id || !name) {
       return NextResponse.json({ error: 'ID and Name are required' }, { status: 400 });
     }
 
-    const updatedBarber = await prisma.barber.update({
+    const updatedBarber: Barber = await prisma.barber.update({
       where: { id },
       data: { name },
     });
@@ -56,15 +57,15 @@ export async function updateBarber(req: NextRequest) {
 }
 
 // Delete a barber
-export async function deleteBarber(req: NextRequest) {
+export async function deleteBarber(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id } = await req.json();
+    const { id }: { id: number } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const deletedBarber = await prisma.barber.delete({
+    const deletedBarber: Barber = await prisma.barber.delete({
       where: { id },
     });
 
@@ -78,9 +79,9 @@ export async function deleteBarber(req: NextRequest) {
 // -------------------- SERVICES CRUD --------------------
 
 // Get all services
-export async function getServices() {
+export async function getServices(): Promise<NextResponse> {
   try {
-    const services = await prisma.service.findMany();
+    const services: Service[] = await prisma.service.findMany();
     return NextResponse.json(services);
   } catch (error) {
     console.error('Error fetching services:', error);
@@ -89,16 +90,16 @@ export async function getServices() {
 }
 
 // Create a new service
-export async function createService(req: NextRequest) {
+export async function createService(req: NextRequest): Promise<NextResponse> {
   try {
-    const { name, price } = await req.json();
+    const { name, price, description }: { name: string; price: number; description: string } = await req.json();
 
-    if (!name || price === undefined) {
-      return NextResponse.json({ error: 'Name and Price are required' }, { status: 400 });
+    if (!name || price === undefined || !description) {
+      return NextResponse.json({ error: 'Name, Price, and Description are required' }, { status: 400 });
     }
 
-    const newService = await prisma.service.create({
-      data: { name, price },
+    const newService: Service = await prisma.service.create({
+      data: { name, price, description },
     });
 
     return NextResponse.json(newService);
@@ -109,17 +110,17 @@ export async function createService(req: NextRequest) {
 }
 
 // Update a service's details
-export async function updateService(req: NextRequest) {
+export async function updateService(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id, name, price } = await req.json();
+    const { id, name, price, description }: { id: number; name: string; price: number; description: string } = await req.json();
 
-    if (!id || !name || price === undefined) {
-      return NextResponse.json({ error: 'ID, Name, and Price are required' }, { status: 400 });
+    if (!id || !name || price === undefined || !description) {
+      return NextResponse.json({ error: 'ID, Name, Price, and Description are required' }, { status: 400 });
     }
 
-    const updatedService = await prisma.service.update({
+    const updatedService: Service = await prisma.service.update({
       where: { id },
-      data: { name, price },
+      data: { name, price, description },
     });
 
     return NextResponse.json(updatedService);
@@ -130,15 +131,15 @@ export async function updateService(req: NextRequest) {
 }
 
 // Delete a service
-export async function deleteService(req: NextRequest) {
+export async function deleteService(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id } = await req.json();
+    const { id }: { id: number } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const deletedService = await prisma.service.delete({
+    const deletedService: Service = await prisma.service.delete({
       where: { id },
     });
 
@@ -152,9 +153,9 @@ export async function deleteService(req: NextRequest) {
 // -------------------- BOOKINGS CRUD --------------------
 
 // Get all bookings
-export async function getBookings() {
+export async function getBookings(): Promise<NextResponse> {
   try {
-    const bookings = await prisma.booking.findMany({
+    const bookings: Booking[] = await prisma.booking.findMany({
       include: {
         barber: true,
         service: true,
@@ -168,20 +169,24 @@ export async function getBookings() {
 }
 
 // Create a new booking
-export async function createBooking(req: NextRequest) {
+export async function createBooking(req: NextRequest): Promise<NextResponse> {
   try {
-    const { customer, date, barberId, serviceId } = await req.json();
+    // إضافة الحقل phone مع البيانات الأخرى
+    const { customer, date, barberId, serviceId, phone }: { customer: string; date: string; barberId: number; serviceId: number; phone: string } = await req.json();
 
-    if (!customer || !date || !barberId || !serviceId) {
+    // التأكد من وجود جميع الحقول المطلوبة
+    if (!customer || !date || !barberId || !serviceId || !phone) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
+    // إنشاء الحجز باستخدام جميع البيانات
     const newBooking = await prisma.booking.create({
       data: {
         customer,
         date: new Date(date),
         barberId,
         serviceId,
+        phone,  // إضافة الهاتف هنا
       },
     });
 
@@ -192,16 +197,17 @@ export async function createBooking(req: NextRequest) {
   }
 }
 
+
 // Update a booking's details
-export async function updateBooking(req: NextRequest) {
+export async function updateBooking(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id, customer, date, barberId, serviceId } = await req.json();
+    const { id, customer, date, barberId, serviceId }: { id: number; customer: string; date: string; barberId: number; serviceId: number } = await req.json();
 
     if (!id || !customer || !date || !barberId || !serviceId) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    const updatedBooking = await prisma.booking.update({
+    const updatedBooking: Booking = await prisma.booking.update({
       where: { id },
       data: {
         customer,
@@ -219,15 +225,15 @@ export async function updateBooking(req: NextRequest) {
 }
 
 // Delete a booking
-export async function deleteBooking(req: NextRequest) {
+export async function deleteBooking(req: NextRequest): Promise<NextResponse> {
   try {
-    const { id } = await req.json();
+    const { id }: { id: number } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const deletedBooking = await prisma.booking.delete({
+    const deletedBooking: Booking = await prisma.booking.delete({
       where: { id },
     });
 

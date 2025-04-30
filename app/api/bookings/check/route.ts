@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET method to check booking by name and phone
+// -------------------- GET: Check Booking by name & phone --------------------
+
 export async function GET(req: Request) {
   try {
-    const url = new URL(req.url); // Get URL from the request
+    const url = new URL(req.url);
     const name = url.searchParams.get('name');
     const phone = url.searchParams.get('phone');
 
@@ -12,7 +13,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 });
     }
 
-    // Search for the booking with the given name and phone
     const booking = await prisma.booking.findFirst({
       where: {
         customer: name,
@@ -24,32 +24,37 @@ export async function GET(req: Request) {
       },
     });
 
-    console.log('Booking Found:', booking);  // Log the response
-
-    if (booking) {
-      return NextResponse.json({ booking });
-    } else {
+    if (!booking) {
       return NextResponse.json({ message: 'No booking found' }, { status: 404 });
     }
+
+    return NextResponse.json({ booking });
   } catch (error) {
     console.error("GET /api/bookings/check error:", error);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }
 
-// PUT method to update the booking
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  try {
-    const { date } = await req.json();  // Get the date from the request body
+// -------------------- PUT: Update Booking by ID --------------------
 
+export async function PUT(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const idStr = url.pathname.split('/').pop();
+
+    const id = parseInt(idStr || '');
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Valid booking ID is required' }, { status: 400 });
+    }
+
+    const { date } = await req.json();
     if (!date) {
       return NextResponse.json({ error: 'Date is required' }, { status: 400 });
     }
 
-    // Update the booking
     const updatedBooking = await prisma.booking.update({
-      where: { id: parseInt(params.id) }, // Find the booking by ID
-      data: { date }, // Update the date
+      where: { id },
+      data: { date: new Date(date) },
     });
 
     return NextResponse.json(updatedBooking);
