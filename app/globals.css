@@ -1,26 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap");
+@import "react-datepicker/dist/react-datepicker.css";
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  [data-theme="blue"] {
+    --color-primary-50: #f0f9ff;
+    --color-primary-100: #e0f2fe;
+    --color-primary-200: #bae6fd;
+    --color-primary-300: #7dd3fc;
+    --color-primary-400: #38bdf8;
+    --color-primary-500: #0ea5e9;
+    --color-primary-600: #0284c7;
+    --color-primary-700: #0369a1;
+    --color-primary-800: #075985;
+    --color-primary-900: #0c4a6e;
   }
+
+  [data-theme="green"] {
+    --color-primary-50: #effcf6;
+    --color-primary-100: #d6f5e9;
+    --color-primary-200: #b0ead2;
+    --color-primary-300: #8ae0bc;
+    --color-primary-400: #69d7ac;
+    --color-primary-500: #56d0a0;
+    --color-primary-600: #46b588;
+    --color-primary-700: #3a9773;
+    --color-primary-800: #2f7a5e;
+    --color-primary-900: #265e4d;
+  }
+
+  [data-theme="purple"] {
+    --color-primary-50: #f5f3ff;
+    --color-primary-100: #ede9fe;
+    --color-primary-200: #ddd6fe;
+    --color-primary-300: #c4b5fd;
+    --color-primary-400: #a78bfa;
+    --color-primary-500: #8b5cf6;
+    --color-primary-600: #7c3aed;
+    --color-primary-700: #6d28d9;
+    --color-primary-800: #5b21b6;
+    --color-primary-900: #4c1d95;
+  }
+
+  [data-theme="red"] {
+    --color-primary-50: #fef2f2;
+    --color-primary-100: #fee2e2;
+    --color-primary-200: #fecaca;
+    --color-primary-300: #fca5a5;
+    --color-primary-400: #f87171;
+    --color-primary-500: #ef4444;
+    --color-primary-600: #dc2626;
+    --color-primary-700: #b91c1c;
+    --color-primary-800: #991b1b;
+    --color-primary-900: #7f1d1d;
+  }
+
+  [data-theme="orange"] {
+    --color-primary-50: #fff7ed;
+    --color-primary-100: #ffedd5;
+    --color-primary-200: #fed7aa;
+    --color-primary-300: #fdba74;
+    --color-primary-400: #fb923c;
+    --color-primary-500: #f97316;
+    --color-primary-600: #ea580c;
+    --color-primary-700: #c2410c;
+    --color-primary-800: #9a3412;
+    --color-primary-900: #7c2d12;
+  }
+
+  [data-theme="pink"] {
+    --color-primary-50: #fdf2f8;
+    --color-primary-100: #fce7f3;
+    --color-primary-200: #fbcfe8;
+    --color-primary-300: #f9a8d4;
+    --color-primary-400: #f472b6;
+    --color-primary-500: #ec4899;
+    --color-primary-600: #db2777;
+    --color-primary-700: #be185d;
+    --color-primary-800: #9d174d;
+    --color-primary-900: #831843;
+  }
+
+  [data-theme="gold"] {
+    --color-primary-50: #fefce8;
+    --color-primary-100: #fef9c3;
+    --color-primary-200: #fef08a;
+    --color-primary-300: #fde047;
+    --color-primary-400: #facc15;
+    --color-primary-500: #eab308;
+    --color-primary-600: #ca8a04;
+    --color-primary-700: #a16207;
+    --color-primary-800: #854d0e;
+    --color-primary-900: #713f12;
+  }
+
+  [data-theme="gray"] {
+    --color-primary-50: #f9fafb;
+    --color-primary-100: #f3f4f6;
+    --color-primary-200: #e5e7eb;
+    --color-primary-300: #d1d5db;
+    --color-primary-400: #9ca3af;
+    --color-primary-500: #6b7280;
+    --color-primary-600: #4b5563;
+    --color-primary-700: #374151;
+    --color-primary-800: #1f2937;
+    --color-primary-900: #111827;
+  }
+
+  [data-theme="brown"] {
+    --color-primary-50: #faf8f2;
+    --color-primary-100: #f5f0e6;
+    --color-primary-200: #ebe3d3;
+    --color-primary-300: #d7c7b4;
+    --color-primary-400: #b3a28b;
+    --color-primary-500: #927e6a;
+    --color-primary-600: #786150;
+    --color-primary-700: #624b3d;
+    --color-primary-800: #4d3a2e;
+    --color-primary-900: #3e2f25;
+  }
+}
+html {
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Cairo", sans-serif;
 }

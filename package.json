@@ -6,22 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "hash": "tsx scripts/hash.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.9.2",
+    "next": "15.3.1",
+    "prisma": "^6.6.0",
     "react": "^19.0.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "react-hook-form": "^7.56.1",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "22.15.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "tsx": "^4.19.3",
+    "typescript": "5.8.3"
   }
 }
