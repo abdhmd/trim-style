@@ -8,30 +8,32 @@ export async function POST(req: Request) {
   try {
     const { username, password } = await req.json()
 
-    // البحث عن المستخدم في قاعدة البيانات
     const user = await prisma.user.findUnique({ where: { username } })
 
-    // التحقق من وجود المستخدم
     if (!user) {
-      // لا نكشف للمهاجم ما إذا كان اسم المستخدم أو كلمة المرور خاطئة
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    // مقارنة كلمة المرور المدخلة مع كلمة المرور المخزنة
     const isMatch = await bcrypt.compare(password, user.password)
 
     if (!isMatch) {
-      // لا نكشف للمهاجم ما إذا كان اسم المستخدم أو كلمة المرور خاطئة
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    // إعداد الرد الناجح
-    const res = NextResponse.json({ success: true })
-    
-    // ضبط الكوكيز مع الأمان العالي
-    res.headers.set('Set-Cookie', `auth=true; Path=/; HttpOnly; Secure; SameSite=Strict`)
+    // ✅ إنشاء Response يدوي
+    const response = NextResponse.json({ success: true })
 
-    return res
+    // ✅ تعيين الكوكي باستخدام الطريقة الرسمية
+    response.cookies.set('auth', 'true', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development',
+      sameSite: 'lax',  // Lax أفضل للأمان والتوافق
+      path: '/',  // يجب أن تكون الكوكي مرتبطة بجميع المسارات
+      maxAge: 60 * 60 * 24,  // 24 ساعة (تأكد من أن القيمة كبيرة بما يكفي)
+    });
+    
+
+    return response
   } catch (error) {
     console.error('Error during authentication:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
