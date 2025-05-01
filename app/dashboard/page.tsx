@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { FaCalendarAlt, FaUserTie, FaCut, FaChartLine, FaMoneyBillWave, FaClock } from 'react-icons/fa';
+import { FaCalendarAlt, FaUserTie, FaCut, FaChartLine, FaMoneyBillWave } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 // Define TypeScript interfaces
@@ -20,7 +20,7 @@ interface Booking {
   service?: { name: string; price: number };
 }
 
-const Home = () => {
+const Dashboard = () => {
   const router = useRouter();
 
   const [stats, setStats] = useState<Stat[]>([
@@ -33,7 +33,6 @@ const Home = () => {
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
 
   const fetchDashboardData = useCallback(async (): Promise<void> => {
     try {
@@ -61,11 +60,11 @@ const Home = () => {
         return sum + (booking.service?.price || 0);
       }, 0);
 
-      setStats([
-        { ...stats[0], value: todaysBookings.length.toString() },
-        { ...stats[1], value: barbers.length.toString() },
-        { ...stats[2], value: services.length.toString() },
-        { ...stats[3], value: `SAR ${todayRevenue.toLocaleString('en-US', { numberingSystem: 'latn' })}` },
+      setStats((prevStats) => [
+        { ...prevStats[0], value: todaysBookings.length.toString() },
+        { ...prevStats[1], value: barbers.length.toString() },
+        { ...prevStats[2], value: services.length.toString() },
+        { ...prevStats[3], value: `SAR ${todayRevenue.toLocaleString('en-US', { numberingSystem: 'latn' })}` },
       ]);
 
       const sortedBookings = [...bookings]
@@ -74,20 +73,26 @@ const Home = () => {
 
       setRecentBookings(sortedBookings);
     } catch {
-      setError('Failed to fetch dashboard data. Please try again.');
+      setError('فشل في جلب بيانات لوحة التحكم');
     } finally {
       setIsLoading(false);
     }
-  }, [setIsLoading, setError, setStats, setRecentBookings, stats]);
+  }, []); // مهم أن تبقى التبعيات هنا فارغة
 
+  // ✅ useEffect الصحيح مع التبعيات المطلوبة:
   useEffect(() => {
-    const isAuth = localStorage.getItem('auth');
-    if (isAuth !== 'true') {
+    // تحقق من الكوكي مباشرة بدلاً من localStorage
+    const auth = document.cookie.includes('auth=true');
+    console.log('Is user authenticated?', auth); // تأكد من أنه صحيح
+
+    if (!auth) {
+      // إذا لم يكن المستخدم مسجل الدخول، أعد التوجيه إلى صفحة login
       router.push('/login');
     } else {
+      // إذا كان المستخدم مسجل الدخول، قم بتحميل البيانات
       fetchDashboardData();
     }
-  }, [fetchDashboardData, router]);
+  }, [fetchDashboardData, router]); // إضافة التبعيات المطلوبة
 
   const formatTime = (dateString: string): string => {
     return new Date(dateString).toLocaleTimeString('en-US', {
@@ -228,29 +233,10 @@ const Home = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {recentBookings.map((booking) => (
                     <tr key={booking.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push('/dashboard/bookings')}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{booking.customer}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">
-                          <div>{formatDate(booking.date)}</div>
-                          <div className="flex items-center mt-1">
-                            <FaClock className="ml-1 text-gray-400 text-xs" />
-                            {formatTime(booking.date)}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <FaUserTie className="ml-1 text-gray-400 text-xs" />
-                            {booking.barber?.name || 'غير محدد'}
-                          </div>
-                          <div className="flex items-center mt-1">
-                            <FaCut className="ml-1 text-gray-400 text-xs" />
-                            {booking.service?.name || 'غير محدد'}
-                          </div>
-                        </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.customer}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(booking.date)} في {formatTime(booking.date)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.barber?.name} - {booking.service?.name}
                       </td>
                     </tr>
                   ))}
@@ -258,67 +244,10 @@ const Home = () => {
               </table>
             </div>
           )}
-
-          {/* Today's Schedule */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-700">
-              <FaCalendarAlt /> جدول اليوم
-            </h2>
-            {isLoading ? (
-              <div className="animate-pulse bg-gray-100 h-40 rounded-xl"></div>
-            ) : (
-              <div className="bg-gray-50 p-4 rounded-xl">
-                <p className="text-center text-gray-500 mb-4">
-                  {new Date().toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    numberingSystem: 'latn',
-                  })}
-                </p>
-                <div className="space-y-2" role="list" aria-label="Today's bookings">
-                  {(() => {
-                    const today = new Date();
-                    const todayBookings = recentBookings
-                      .filter((booking) => {
-                        const bookingDate = new Date(booking.date);
-                        return (
-                          bookingDate.getFullYear() === today.getFullYear() &&
-                          bookingDate.getMonth() === today.getMonth() &&
-                          bookingDate.getDate() === today.getDate()
-                        );
-                      })
-                      .slice(0, 3);
-
-                    if (todayBookings.length === 0) {
-                      return (
-                        <p className="text-center text-gray-400 text-sm py-2">
-                          لا توجد حجوزات لهذا اليوم
-                        </p>
-                      );
-                    }
-
-                    return todayBookings.map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="flex justify-between items-center p-3 bg-white rounded-lg hover:bg-gray-50 transition"
-                      >
-                        <span className="text-sm font-medium">{booking.customer}</span>
-                        <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full">
-                          {formatTime(booking.date)}
-                        </span>
-                      </div>
-                    ));
-                  })()}
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default Dashboard;

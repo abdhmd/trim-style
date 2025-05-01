@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useContext, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { FaLock, FaSignInAlt } from 'react-icons/fa';
 import { GiScissors } from 'react-icons/gi';
 import { ThemeContext } from '@/app/context/ThemeContext';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -29,23 +27,24 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
+  
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
-        credentials: 'include',  // تأكد من أن الكوكيز يتم إرسالها مع الطلب
-      });      
-
+        credentials: 'include',
+      });
+  
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         setError(data?.error || 'فشل تسجيل الدخول');
         setIsLoading(false);
         return;
       }
-
-      router.push('/dashboard');
+  
+      // استبدال router.push بـ window.location للتأكد من أن الإعادة التوجيه تعمل
+      window.location.href = '/dashboard';
     } catch (err) {
       console.error(err);
       setError('خطأ في الاتصال بالخادم');
@@ -54,7 +53,7 @@ export default function LoginPage() {
   };
 
   if (!isMounted) {
-    return null;
+    return <div>جاري التحميل...</div>; // عرض placeholder بدلاً من null
   }
 
   return (
