@@ -10,13 +10,12 @@
     "hash": "tsx scripts/hash.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.6.0",
+    "@prisma/client": "^6.7.0",
     "@tailwindcss/forms": "^0.5.10",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "framer-motion": "^12.9.2",
     "next": "15.3.1",
-    "prisma": "^6.6.0",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
@@ -31,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "prisma": "^6.7.0",
     "tailwindcss": "^4",
     "tsx": "^4.19.3",
     "typescript": "5.8.3"

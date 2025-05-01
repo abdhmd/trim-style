@@ -40,10 +40,14 @@ const Dashboard = () => {
       setError(null);
 
       const [bookingsRes, barbersRes, servicesRes] = await Promise.all([
-        fetch('/api/bookings'),
-        fetch('/api/barbers'),
-        fetch('/api/services'),
+        fetch('/api/bookings', { credentials: 'include' }),
+        fetch('/api/barbers', { credentials: 'include' }),
+        fetch('/api/services', { credentials: 'include' }),
       ]);
+
+      if (!bookingsRes.ok || !barbersRes.ok || !servicesRes.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
 
       const [bookings, barbers, services] = await Promise.all([
         bookingsRes.json(),
@@ -77,22 +81,11 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []); // مهم أن تبقى التبعيات هنا فارغة
+  }, []);
 
-  // ✅ useEffect الصحيح مع التبعيات المطلوبة:
   useEffect(() => {
-    // تحقق من الكوكي مباشرة بدلاً من localStorage
-    const auth = document.cookie.includes('auth=true');
-    console.log('Is user authenticated?', auth); // تأكد من أنه صحيح
-
-    if (!auth) {
-      // إذا لم يكن المستخدم مسجل الدخول، أعد التوجيه إلى صفحة login
-      router.push('/login');
-    } else {
-      // إذا كان المستخدم مسجل الدخول، قم بتحميل البيانات
-      fetchDashboardData();
-    }
-  }, [fetchDashboardData, router]); // إضافة التبعيات المطلوبة
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const formatTime = (dateString: string): string => {
     return new Date(dateString).toLocaleTimeString('en-US', {

@@ -6,7 +6,7 @@ import Navbar from './components/Navbar'; // Assuming Navbar is a client compone
 import Footer from './components/Footer';
 import Main from './components/Main';
 export const metadata: Metadata = {
-  title: 'Barber Shop',
+  title: 'Trim Style',
   description: 'أفضل منصة لحجز مواعيد الحلاقة بسهولة وسرعة',
 };
 

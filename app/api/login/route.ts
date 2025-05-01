@@ -11,44 +11,31 @@ export async function POST(req: Request) {
     const user = await prisma.user.findUnique({ where: { username } });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // ✅ إنشاء Response يدوي
     const response = NextResponse.json({ success: true });
 
-    // ✅ تعيين الكوكي باستخدام الطريقة الرسمية
-    // عند تعيين الكوكي بعد تسجيل الدخول
     response.cookies.set("auth", "true", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // أو 'none' إذا كنت تستخدم HTTPS
-      path: "/", // يجعل الكوكي متاحًا في جميع المسارات
-      maxAge: 60 * 60 * 24, // صلاحية 24 ساعة
-      domain:
-        process.env.NODE_ENV === "production"
-          ? ".trim-style.netlify.app/" // استبدلها بنطاقك (يجب أن تبدأ بنقطة لتشمل subdomains)
-          : "localhost", // للتطوير المحلي
+      sameSite: "lax", // جرب "none" إذا كنت تستخدم HTTPS وطلبات cross-origin
+      path: "/",
+      maxAge: 60 * 60 * 24,
+      domain: process.env.NODE_ENV === "production" ? ".trim-style.netlify.app" : undefined,
     });
+
+    console.log(`[Login] Setting auth cookie for user: ${username}, Domain: ${process.env.NODE_ENV === "production" ? ".trim-style.netlify.app" : "localhost"}`);
 
     return response;
   } catch (error) {
     console.error("Error during authentication:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
